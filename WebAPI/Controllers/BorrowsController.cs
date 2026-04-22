@@ -22,13 +22,11 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(int userId)
         {
-            if (!IsLibrarian(userId))
-                return Unauthorized("Only librarian can access");
             var records = await _context.BorrowRecords
-                .Include(b => b.Book)
-                .Include(b => b.Fine)
-                .Select(b => new BorrowResponseDTO
-                {
+        .Include(b => b.Book)
+        .Include(b => b.Fine)
+        .Select(b => new BorrowResponseDTO
+        {
                     Id = b.Id,
                     UserId = b.UserId,
                     BookTitle = b.Book.Title,
