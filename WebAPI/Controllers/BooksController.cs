@@ -64,10 +64,8 @@ namespace WebAPI.Controllers
 
         // POST: api/books
         [HttpPost]
-        public async Task<IActionResult> Create(BookRequestDTO dto, int userId)
+        public async Task<IActionResult> Create(BookRequestDTO dto)
         {
-            if (!IsLibrarian(userId))
-                return Unauthorized("Only librarian can access");
             var category = await _context.Categories.FindAsync(dto.CategoryId);
             if (category == null) return BadRequest("Thể loại không tồn tại");
 
@@ -83,25 +81,20 @@ namespace WebAPI.Controllers
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
         }
 
         // PUT: api/books/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, BookRequestDTO dto, int userId)
+        public async Task<IActionResult> Update(int id, BookRequestDTO dto)
         {
-            if (!IsLibrarian(userId))
-                return Unauthorized("Only librarian can access");
             var book = await _context.Books.FindAsync(id);
             if (book == null) return NotFound("Không tìm thấy sách");
 
             var category = await _context.Categories.FindAsync(dto.CategoryId);
             if (category == null) return BadRequest("Thể loại không tồn tại");
 
-            // Tính lại AvailableQuantity khi thay đổi TotalQuantity
             int borrowed = book.TotalQuantity - book.AvailableQuantity;
-
             book.Title = dto.Title;
             book.Author = dto.Author;
             book.Description = dto.Description;
@@ -115,17 +108,14 @@ namespace WebAPI.Controllers
 
         // DELETE: api/books/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, int userId)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!IsLibrarian(userId))
-                return Unauthorized("Only librarian can access");
             var book = await _context.Books.FindAsync(id);
             if (book == null) return NotFound("Không tìm thấy sách");
 
-            // Kiểm tra còn sách đang được mượn không
             bool isBorrowed = await _context.BorrowRecords
-            .AnyAsync(b => b.BookId == id &&
-                     (b.Status == "Borrowing" || b.Status == "Pending"));
+                .AnyAsync(b => b.BookId == id &&
+                         (b.Status == "Borrowing" || b.Status == "Pending"));
 
             if (isBorrowed) return BadRequest("Sách đang được mượn, không thể xóa");
 
