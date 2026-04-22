@@ -20,8 +20,10 @@ namespace WebAPI.Controllers
 
         // GET: api/borrows
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int userId)
         {
+            if (!IsLibrarian(userId))
+                return Unauthorized("Only librarian can access");
             var records = await _context.BorrowRecords
                 .Include(b => b.Book)
                 .Include(b => b.Fine)
@@ -216,5 +218,11 @@ namespace WebAPI.Controllers
             await _context.SaveChangesAsync();
             return Ok("Gia hạn thành công");
         }
+        private bool IsLibrarian(int userId)
+        {
+            var user = _context.Users.Find(userId);
+            return user != null && user.Role == 2;
+        }
+
     }
 }

@@ -11,7 +11,8 @@ odataBuilder.EntitySet<Book>("Books");
 odataBuilder.EntitySet<BorrowRecord>("BorrowRecords");
 odataBuilder.EntitySet<Fine>("Fines");
 odataBuilder.EntitySet<Category>("Categories");
-
+builder.Services.AddDistributedMemoryCache(); 
+builder.Services.AddSession();
 builder.Services.AddControllers()
     .AddOData(options => options
         .Select()
@@ -30,7 +31,11 @@ builder.Services.AddDbContext<LibrarydbContext>(options =>
     options.UseSqlServer(builder.Configuration
         .GetConnectionString("MyCnn")));
 
+builder.Services.AddSession();
+
 var app = builder.Build();
+
+app.UseSession();
 
 if (app.Environment.IsDevelopment())
 {
