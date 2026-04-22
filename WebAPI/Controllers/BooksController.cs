@@ -64,8 +64,10 @@ namespace WebAPI.Controllers
 
         // POST: api/books
         [HttpPost]
-        public async Task<IActionResult> Create(BookRequestDTO dto)
+        public async Task<IActionResult> Create(BookRequestDTO dto, int userId)
         {
+            if (!IsLibrarian(userId))
+                return Unauthorized("Only librarian can access");
             var category = await _context.Categories.FindAsync(dto.CategoryId);
             if (category == null) return BadRequest("Thể loại không tồn tại");
 
@@ -87,8 +89,10 @@ namespace WebAPI.Controllers
 
         // PUT: api/books/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, BookRequestDTO dto)
+        public async Task<IActionResult> Update(int id, BookRequestDTO dto, int userId)
         {
+            if (!IsLibrarian(userId))
+                return Unauthorized("Only librarian can access");
             var book = await _context.Books.FindAsync(id);
             if (book == null) return NotFound("Không tìm thấy sách");
 
@@ -111,8 +115,10 @@ namespace WebAPI.Controllers
 
         // DELETE: api/books/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, int userId)
         {
+            if (!IsLibrarian(userId))
+                return Unauthorized("Only librarian can access");
             var book = await _context.Books.FindAsync(id);
             if (book == null) return NotFound("Không tìm thấy sách");
 
@@ -126,6 +132,11 @@ namespace WebAPI.Controllers
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
             return Ok("Xóa sách thành công");
+        }
+        private bool IsLibrarian(int userId)
+        {
+            var user = _context.Users.Find(userId);
+            return user != null && user.Role == 2;
         }
     }
 }
