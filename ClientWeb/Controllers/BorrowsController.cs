@@ -24,8 +24,9 @@ namespace ClientWeb.Controllers
         // GET: /Borrows
         public async Task<IActionResult> Index()
         {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             var client = GetClient();
-            var response = await client.GetAsync("api/borrows");
+            var response = await client.GetAsync($"api/borrows?userId={userId}");
             var json = await response.Content.ReadAsStringAsync();
             var borrows = JsonSerializer.Deserialize<List<BorrowViewModel>>(json, _jsonOptions) ?? new();
             return View(borrows);

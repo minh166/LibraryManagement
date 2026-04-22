@@ -53,6 +53,7 @@ namespace ClientWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(BookViewModel model)
         {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             if (!ModelState.IsValid)
             {
                 await LoadCategories();
@@ -102,6 +103,7 @@ namespace ClientWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, BookViewModel model)
         {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             if (!ModelState.IsValid)
             {
                 await LoadCategories();
@@ -137,6 +139,7 @@ namespace ClientWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             var client = GetClient();
             var response = await client.DeleteAsync($"api/books/{id}");
 

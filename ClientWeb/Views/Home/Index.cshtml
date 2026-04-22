@@ -1,8 +1,71 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
+    var role = Context.Session.GetInt32("Role");
+    var userId = Context.Session.GetInt32("UserId");
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (userId == null)
+{
+    <!-- Chưa đăng nhập → redirect về Login -->
+    <script>window.location.href = "/Auth/Login";</script>
+}
+else
+{
+    <div class="container mt-4">
+        <h2>Xin chào! 👋</h2>
+
+        @if (role == 1)
+        {
+            <div class="alert alert-primary">Bạn đang đăng nhập với quyền <strong>Admin</strong></div>
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <a asp-controller="User" asp-action="Index" class="btn btn-primary w-100 py-3">
+                        👥 Quản lý người dùng
+                    </a>
+                </div>
+            </div>
+        }
+        else if (role == 2)
+        {
+            <div class="alert alert-success">Bạn đang đăng nhập với quyền <strong>Thủ thư</strong></div>
+            <div class="row mt-3 g-3">
+                <div class="col-md-4">
+                    <a asp-controller="Books" asp-action="Index" class="btn btn-success w-100 py-3">
+                        📚 Quản lý sách
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Borrows" asp-action="Index" class="btn btn-primary w-100 py-3">
+                        📋 Quản lý mượn sách
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Fines" asp-action="Index" class="btn btn-warning w-100 py-3">
+                        💰 Quản lý phạt
+                    </a>
+                </div>
+            </div>
+        }
+        else if (role == 3)
+        {
+            <div class="alert alert-info">Bạn đang đăng nhập với quyền <strong>Độc giả</strong></div>
+            <div class="row mt-3 g-3">
+                <div class="col-md-4">
+                    <a asp-controller="Books" asp-action="Index" class="btn btn-info w-100 py-3">
+                        📚 Xem danh sách sách
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Borrows" asp-action="MyBorrows" class="btn btn-primary w-100 py-3">
+                        📋 Lịch sử mượn của tôi
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-controller="Fines" asp-action="MyFines" class="btn btn-warning w-100 py-3">
+                        💰 Phạt của tôi
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}
