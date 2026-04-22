@@ -1,0 +1,55 @@
+﻿@model ClientWeb.Models.BorrowViewModel
+
+@{
+    ViewData["Title"] = "Tạo phiếu mượn";
+}
+
+<div class="container mt-4">
+    <h2>➕ Tạo phiếu mượn</h2>
+    <hr />
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values
+                    .SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="Create" method="post" style="max-width:600px">
+        <div class="mb-3">
+            <label asp-for="UserId" class="form-label"></label>
+            <select asp-for="UserId" asp-items="ViewBag.Users" class="form-select">
+                <option value="">-- Chọn người mượn --</option>
+            </select>
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="BookId" class="form-label"></label>
+            <select asp-for="BookId" asp-items="ViewBag.Books" class="form-select">
+                <option value="">-- Chọn sách --</option>
+            </select>
+            <span asp-validation-for="BookId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DueDate" class="form-label"></label>
+            <input asp-for="DueDate" class="form-control" type="date"
+                   min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DueDate" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Tạo phiếu</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

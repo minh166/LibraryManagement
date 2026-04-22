@@ -1,0 +1,92 @@
+﻿@model List<ClientWeb.Models.BorrowViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý mượn sách";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>📋 Danh sách mượn sách</h2>
+        <div>
+            <a asp-action="Create" class="btn btn-success">+ Tạo phiếu mượn</a>
+            <a asp-action="Overdue" class="btn btn-danger">⚠️ Quá hạn</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Người mượn</th>
+                <th>Tên sách</th>
+                <th>Ngày mượn</th>
+                <th>Hạn trả</th>
+                <th>Ngày trả</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model)
+            {
+                <tr>
+                    <td>@b.Id</td>
+                    <td>@b.UserId</td>
+                    <td>@b.BookTitle</td>
+                    <td>@b.BorrowDate.ToString("dd/MM/yyyy")</td>
+                    <td>@b.DueDate.ToString("dd/MM/yyyy")</td>
+                    <td>@(b.ReturnDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                    <td>
+                        @switch (b.Status)
+                        {
+                            case "Pending":
+                                <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                break;
+                            case "Borrowing":
+                                <span class="badge bg-primary">Đang mượn</span>
+                                break;
+                            case "Returned":
+                                <span class="badge bg-success">Đã trả</span>
+                                break;
+                            case "Overdue":
+                                <span class="badge bg-danger">Quá hạn</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        @if (b.Status == "Pending")
+                        {
+                            <form asp-action="Confirm" asp-route-id="@b.Id"
+                                  method="post" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    Xác nhận
+                                </button>
+                            </form>
+                        }
+                        @if (b.Status == "Borrowing")
+                        {
+                            <form asp-action="Return" asp-route-id="@b.Id"
+                                  method="post" style="display:inline"
+                                  onsubmit="return confirm('Xác nhận trả sách?')">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Trả sách
+                                </button>
+                            </form>
+                            <a asp-action="Extend" asp-route-id="@b.Id"
+                               class="btn btn-sm btn-warning">Gia hạn</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
