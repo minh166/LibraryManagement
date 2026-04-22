@@ -1,0 +1,42 @@
+﻿@model List<ClientWeb.Models.FineViewModel>
+
+@{
+    ViewData["Title"] = "Chưa thanh toán";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>⚠️ Phạt chưa thanh toán</h2>
+        <a asp-action="Index" class="btn btn-secondary">← Quay lại</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-warning">
+            <tr>
+                <th>#</th>
+                <th>Tên sách</th>
+                <th>Số tiền phạt</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model)
+            {
+                <tr>
+                    <td>@f.Id</td>
+                    <td>@f.BookTitle</td>
+                    <td class="text-danger fw-bold">@f.Amount.ToString("N0") VNĐ</td>
+                    <td>
+                        <form asp-action="Pay" asp-route-id="@f.Id"
+                              method="post" style="display:inline"
+                              onsubmit="return confirm('Xác nhận thanh toán?')">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Thanh toán
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

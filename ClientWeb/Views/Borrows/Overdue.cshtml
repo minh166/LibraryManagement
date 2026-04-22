@@ -1,0 +1,50 @@
+﻿@model List<ClientWeb.Models.BorrowViewModel>
+
+@{
+    ViewData["Title"] = "Sách quá hạn";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>⚠️ Danh sách quá hạn</h2>
+        <a asp-action="Index" class="btn btn-secondary">← Quay lại</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-danger">
+            <tr>
+                <th>#</th>
+                <th>Người mượn</th>
+                <th>Tên sách</th>
+                <th>Hạn trả</th>
+                <th>Số ngày trễ</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model)
+            {
+                <tr>
+                    <td>@b.Id</td>
+                    <td>@b.UserId</td>
+                    <td>@b.BookTitle</td>
+                    <td>@b.DueDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <span class="text-danger fw-bold">
+                            @(Math.Abs(b.DaysLeft)) ngày
+                        </span>
+                    </td>
+                    <td>
+                        <form asp-action="Return" asp-route-id="@b.Id"
+                              method="post" style="display:inline"
+                              onsubmit="return confirm('Xác nhận trả sách và tính phạt?')">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Trả + Tính phạt
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,75 @@
+﻿@model List<ClientWeb.Models.BookViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý sách";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>📚 Danh sách sách</h2>
+        <a asp-action="Create" class="btn btn-success">+ Thêm sách</a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Tìm kiếm -->
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="search" value="@ViewBag.Search"
+                   class="form-control" placeholder="Tìm theo tên sách, tác giả..." />
+            <button type="submit" class="btn btn-primary">Tìm</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a>
+        </div>
+    </form>
+
+    <!-- Bảng sách -->
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên sách</th>
+                <th>Tác giả</th>
+                <th>Thể loại</th>
+                <th>Tổng SL</th>
+                <th>Còn lại</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>@book.Id</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.CategoryName</td>
+                    <td>@book.TotalQuantity</td>
+                    <td>@book.AvailableQuantity</td>
+                    <td>
+                        @if (book.AvailableQuantity > 0)
+                        {
+                            <span class="badge bg-success">Còn sách</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Hết sách</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@book.Id"
+                           class="btn btn-sm btn-warning">Sửa</a>
+                        <form asp-action="Delete" asp-route-id="@book.Id"
+                              method="post" style="display:inline"
+                              onsubmit="return confirm('Xóa sách này?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

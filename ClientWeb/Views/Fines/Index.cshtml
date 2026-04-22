@@ -1,0 +1,67 @@
+﻿@model List<ClientWeb.Models.FineViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý phạt";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>💰 Danh sách phạt</h2>
+        <a asp-action="Unpaid" class="btn btn-warning">Chưa thanh toán</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên sách</th>
+                <th>Số tiền phạt</th>
+                <th>Trạng thái</th>
+                <th>Ngày thanh toán</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model)
+            {
+                <tr>
+                    <td>@f.Id</td>
+                    <td>@f.BookTitle</td>
+                    <td>@f.Amount.ToString("N0") VNĐ</td>
+                    <td>
+                        @if (f.IsPaid)
+                        {
+                            <span class="badge bg-success">Đã thanh toán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Chưa thanh toán</span>
+                        }
+                    </td>
+                    <td>@(f.PaidDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                    <td>
+                        @if (!f.IsPaid)
+                        {
+                            <form asp-action="Pay" asp-route-id="@f.Id"
+                                  method="post" style="display:inline"
+                                  onsubmit="return confirm('Xác nhận thanh toán?')">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Thanh toán
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
