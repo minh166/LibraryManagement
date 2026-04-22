@@ -1,7 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ClientWeb.Filters.AuthFilter>();
+});
 
 builder.Services.AddHttpClient("LibraryAPI", client =>
 {
@@ -20,6 +26,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseAuthorization();
 
