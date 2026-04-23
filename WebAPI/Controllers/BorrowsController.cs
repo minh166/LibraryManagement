@@ -22,13 +22,11 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(int userId)
         {
-            if (!IsLibrarian(userId))
-                return Unauthorized("Only librarian can access");
             var records = await _context.BorrowRecords
-                .Include(b => b.Book)
-                .Include(b => b.Fine)
-                .Select(b => new BorrowResponseDTO
-                {
+        .Include(b => b.Book)
+        .Include(b => b.Fine)
+        .Select(b => new BorrowResponseDTO
+        {
                     Id = b.Id,
                     UserId = b.UserId,
                     BookTitle = b.Book.Title,
@@ -217,6 +215,39 @@ namespace WebAPI.Controllers
             record.DueDate = dto.NewDueDate;
             await _context.SaveChangesAsync();
             return Ok("Gia hạn thành công");
+        }
+        // POST: api/borrow/Borrow
+        [HttpPost("Borrow")]
+        public IActionResult BorrowBook(int userId, int bookId)
+        {
+            var book = _context.Books.Find(bookId);
+            if (book == null || book.AvailableQuantity <= 0)
+                return BadRequest("Book not available");
+
+            var borrowDate = DateTime.Now;
+            var dueDate = borrowDate.AddDays(7); 
+
+            var record = new BorrowRecord
+            {
+                UserId = userId,
+                BookId = bookId,
+                BorrowDate = borrowDate,
+                DueDate = dueDate,
+                Status = "Pending"
+            };
+
+            _context.BorrowRecords.Add(record);
+            _context.SaveChanges();
+
+            return Ok(new
+            {
+                record.Id,
+                record.UserId,
+                record.BookId,
+                record.BorrowDate,
+                record.DueDate,
+                record.Status
+            });
         }
         private bool IsLibrarian(int userId)
         {

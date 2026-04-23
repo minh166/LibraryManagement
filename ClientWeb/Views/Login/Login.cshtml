@@ -1,0 +1,51 @@
+﻿@model ClientWeb.Models.LoginDTO
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f5f5f5;">
+
+    <div style="width:350px; padding:30px; background:white; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+
+        <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+
+        <!-- ❌ Error -->
+        @if (ViewBag.Error != null)
+        {
+            <p style="color:red; text-align:center;">@ViewBag.Error</p>
+        }
+
+        <form asp-action="Login" method="post">
+
+            <!-- Username -->
+            <div style="margin-bottom:15px;">
+                <label>Username</label>
+                <input asp-for="Username" class="form-control"
+                       style="width:100%; padding:8px;" />
+            </div>
+
+            <!-- Password -->
+            <div style="margin-bottom:20px;">
+                <label>Password</label>
+                <input asp-for="Password" type="password"
+                       style="width:100%; padding:8px;" />
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                    style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:5px;">
+                Login
+            </button>
+
+        </form>
+
+        <!-- Register link -->
+        <p style="text-align:center; margin-top:15px;">
+            Don't have an account?
+            <a asp-controller="Auth" asp-action="Register">Register</a>
+        </p>
+
+    </div>
+
+</div>

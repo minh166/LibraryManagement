@@ -1,0 +1,76 @@
+﻿@model List<ClientWeb.Models.UserViewModel>
+
+<h2>Quản lý người dùng</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Họ tên</th>
+            <th>Role</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+        <a asp-action="Create" class="btn btn-success mb-2">+ Tạo user</a>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Id</td>
+                <td>@u.Username</td>
+                <td>@u.FullName</td>
+                <td>@u.Role</td>
+                <td>
+                    @if (u.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Disabled</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@u.Id"
+                       class="btn btn-info btn-sm">Chi tiết</a>
+
+                    @if (u.IsActive)
+                    {
+                        <form asp-action="Disable" method="post" style="display:inline">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-danger btn-sm">Disable</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Enable" method="post" style="display:inline">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-success btn-sm">Enable</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- PAGINATION -->
+@{
+    int total = ViewBag.Total;
+    int page = ViewBag.Page;
+    int pageSize = ViewBag.PageSize;
+    int totalPages = (int)Math.Ceiling((double)total / pageSize);
+}
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == page ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

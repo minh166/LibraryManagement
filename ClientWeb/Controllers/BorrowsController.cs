@@ -24,8 +24,9 @@ namespace ClientWeb.Controllers
         // GET: /Borrows
         public async Task<IActionResult> Index()
         {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             var client = GetClient();
-            var response = await client.GetAsync("api/borrows");
+            var response = await client.GetAsync($"api/borrows?userId={userId}");
             var json = await response.Content.ReadAsStringAsync();
             var borrows = JsonSerializer.Deserialize<List<BorrowViewModel>>(json, _jsonOptions) ?? new();
             return View(borrows);
@@ -183,6 +184,107 @@ namespace ClientWeb.Controllers
                 var users = JsonSerializer.Deserialize<List<UserViewModel>>(json, _jsonOptions) ?? new();
                 ViewBag.Users = new SelectList(users, "Id", "FullName");
             }
+        }
+        private IActionResult? CheckLogin()
+        {
+            if (HttpContext.Session.GetInt32("UserId") == null)
+                return RedirectToAction("Login", "Auth");
+
+            return null;
+        }
+        [HttpPost]
+        public async Task<IActionResult> Borrow(BorrowViewModel model)
+        {
+            var check = CheckLogin();
+            if (check != null) return check;
+
+            if (!ModelState.IsValid)
+            {
+                await LoadBooks();
+                return View(model);
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            var client = GetClient();
+
+            var body = new
+            {
+                userId = userId,
+                bookId = model.BookId,
+                dueDate = model.DueDate
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(body),
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await client.PostAsync("api/borrows", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Mượn sách thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = await response.Content.ReadAsStringAsync();
+
+            await LoadBooks();
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> BorrowBook(int bookId)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+                return RedirectToAction("Login", "Auth");
+
+            var client = GetClient();
+
+            var response = await client.PostAsync(
+                $"api/borrows/borrow?userId={userId}&bookId={bookId}",
+                null
+            );
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = error;
+            }
+            else
+            {
+                TempData["Success"] = "Đã gửi yêu cầu mượn sách!";
+            }
+
+            return RedirectToAction("Index", "Books");
+        }
+        // GET: /Borrows/MyBorrows
+        public async Task<IActionResult> MyBorrows()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+                return RedirectToAction("Login", "Auth");
+
+            var client = GetClient();
+
+            var response = await client.GetAsync($"api/borrows/user/{userId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Không load được lịch sử mượn";
+                return View(new List<BorrowViewModel>());
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var borrows = JsonSerializer.Deserialize<List<BorrowViewModel>>(json, _jsonOptions)
+                          ?? new List<BorrowViewModel>();
+
+            return View(borrows);
         }
     }
 }

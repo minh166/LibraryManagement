@@ -58,5 +58,30 @@ namespace ClientWeb.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        // GET: /Borrows/MyFines
+        public async Task<IActionResult> MyFines()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+                return RedirectToAction("Login", "Auth");
+
+            var client = GetClient();
+
+            var response = await client.GetAsync($"api/fines/user/{userId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Không tải được danh sách tiền phạt";
+                return View(new List<FineViewModel>());
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var fines = JsonSerializer.Deserialize<List<FineViewModel>>(json, _jsonOptions)
+                        ?? new List<FineViewModel>();
+
+            return View(fines);
+        }
     }
 }

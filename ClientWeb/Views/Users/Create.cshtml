@@ -1,0 +1,41 @@
+﻿@model ClientWeb.Models.CreteUserViewModel
+
+<h2>Tạo người dùng</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-2">
+        <label>Username</label>
+        <input asp-for="Username" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Họ tên</label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Phone</label>
+        <input asp-for="Phone" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Role</label>
+        <select asp-for="Role" class="form-control">
+            <option value="1">Admin</option>
+            <option value="2">Librarian</option>
+            <option value="3">Borrower</option>
+        </select>
+    </div>
+
+    <button class="btn btn-success">Tạo</button>
+</form>

@@ -71,5 +71,47 @@ namespace WebAPI.Controllers
             await _context.SaveChangesAsync();
             return Ok("Thanh toán phạt thành công");
         }
+        // GET: api/fines/user/5
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUser(int userId)
+        {
+            var fines = await _context.Fines
+                .Include(f => f.BorrowRecord)
+                    .ThenInclude(b => b.Book)
+                .Where(f => f.BorrowRecord.UserId == userId)
+                .Select(f => new FineResponseDTO
+                {
+                    Id = f.Id,
+                    BorrowRecordId = f.BorrowRecordId,
+                    BookTitle = f.BorrowRecord.Book.Title,
+                    Amount = f.Amount,
+                    IsPaid = f.IsPaid,
+                    PaidDate = f.PaidDate
+                })
+                .ToListAsync();
+
+            return Ok(fines);
+        }
+        // GET: api/fines/user/5/unpaid
+        [HttpGet("user/{userId}/unpaid")]
+        public async Task<IActionResult> GetUnpaidByUser(int userId)
+        {
+            var fines = await _context.Fines
+                .Include(f => f.BorrowRecord)
+                    .ThenInclude(b => b.Book)
+                .Where(f => f.BorrowRecord.UserId == userId && !f.IsPaid)
+                .Select(f => new FineResponseDTO
+                {
+                    Id = f.Id,
+                    BorrowRecordId = f.BorrowRecordId,
+                    BookTitle = f.BorrowRecord.Book.Title,
+                    Amount = f.Amount,
+                    IsPaid = f.IsPaid,
+                    PaidDate = f.PaidDate
+                })
+                .ToListAsync();
+
+            return Ok(fines);
+        }
     }
 }

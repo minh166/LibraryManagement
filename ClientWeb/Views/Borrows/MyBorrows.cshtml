@@ -1,0 +1,94 @@
+﻿@model List<ClientWeb.Models.BorrowViewModel>
+
+@{
+    ViewData["Title"] = "My Borrows";
+}
+
+<div class="container mt-4">
+
+    <h2>📖 Lịch sử mượn của tôi</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Sách</th>
+                <th>Tác giả</th>
+                <th>Ngày mượn</th>
+                <th>Hạn trả</th>
+                <th>Ngày trả</th>
+                <th>Trạng thái</th>
+                <th>Còn lại</th>
+                <th>Phạt</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.BookTitle</td>
+                    <td>@item.Author</td>
+
+                    <td>@item.BorrowDate.ToString("dd/MM/yyyy")</td>
+                    <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+
+                    <td>
+                        @(item.ReturnDate.HasValue
+                                            ? item.ReturnDate.Value.ToString("dd/MM/yyyy")
+                                            : "-")
+                </td>
+
+                    <td>
+                    @if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        }
+                        else if (item.Status == "Borrowing")
+                        {
+                            <span class="badge bg-primary">Đang mượn</span>
+                        }
+                        else if (item.Status == "Returned")
+                        {
+                            <span class="badge bg-success">Đã trả</span>
+                        }
+                        else if (item.Status == "Overdue")
+                        {
+                            <span class="badge bg-danger">Quá hạn</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (item.ReturnDate == null)
+                        {
+                            <span>@item.DaysLeft ngày</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (item.Fine != null)
+                        {
+                            <span class="text-danger">
+                                @item.Fine.Amount.ToString("N0") VNĐ
+                            </span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
