@@ -34,10 +34,10 @@ namespace ClientWeb.Models
         public FineViewModel? Fine { get; set; }
     }
 
-    public class UserViewModel
-    {
-        public int Id { get; set; }
-        public string Username { get; set; }
-        public string? FullName { get; set; }
-    }
+    //public class UserViewModel
+    //{
+    //    public int Id { get; set; }
+    //    public string Username { get; set; }
+    //    public string? FullName { get; set; }
+    //}
 }

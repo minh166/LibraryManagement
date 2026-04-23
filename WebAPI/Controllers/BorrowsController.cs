@@ -216,6 +216,39 @@ namespace WebAPI.Controllers
             await _context.SaveChangesAsync();
             return Ok("Gia hạn thành công");
         }
+        // POST: api/borrow/Borrow
+        [HttpPost("Borrow")]
+        public IActionResult BorrowBook(int userId, int bookId)
+        {
+            var book = _context.Books.Find(bookId);
+            if (book == null || book.AvailableQuantity <= 0)
+                return BadRequest("Book not available");
+
+            var borrowDate = DateTime.Now;
+            var dueDate = borrowDate.AddDays(7); 
+
+            var record = new BorrowRecord
+            {
+                UserId = userId,
+                BookId = bookId,
+                BorrowDate = borrowDate,
+                DueDate = dueDate,
+                Status = "Pending"
+            };
+
+            _context.BorrowRecords.Add(record);
+            _context.SaveChanges();
+
+            return Ok(new
+            {
+                record.Id,
+                record.UserId,
+                record.BookId,
+                record.BorrowDate,
+                record.DueDate,
+                record.Status
+            });
+        }
         private bool IsLibrarian(int userId)
         {
             var user = _context.Users.Find(userId);

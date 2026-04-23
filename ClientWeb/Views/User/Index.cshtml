@@ -1,0 +1,59 @@
+﻿@model List<ClientWeb.Models.UserViewModel>
+
+<h2>👤 User Management</h2>
+
+<table class="table">
+    <tr>
+        <th>Username</th>
+        <th>Full Name</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.Username</td>
+            <td>@u.FullName</td>
+            <td>@u.Role</td>
+
+            <td>
+                @if (u.IsActive)
+                {
+                    <span class="text-success">Active</span>
+                }
+                else
+                {
+                    <span class="text-danger">Disabled</span>
+                }
+            </td>
+
+            <td>
+                <a asp-action="Detail" asp-route-id="@u.Id">View</a> |
+                <a asp-action="Edit" asp-route-id="@u.Id">Edit</a>
+
+                @if (u.IsActive)
+                {
+                    <form asp-action="Disable" method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@u.Id" />
+                        <button>Disable</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Enable" method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@u.Id" />
+                        <button>Enable</button>
+                    </form>
+                }
+                <div>
+                    @for (int i = 1; i <= (int)Math.Ceiling((double)ViewBag.Total / ViewBag.PageSize); i++)
+                    {
+                        <a asp-action="Index" asp-route-page="@i">@i</a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+</table>

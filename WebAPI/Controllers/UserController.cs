@@ -15,25 +15,38 @@ namespace WebAPI.Controllers
             _context = context;
         }
 
+        // GET: api/users?page=1&pageSize=5
         [HttpGet]
-        public IActionResult GetAll(int userId)
+        public IActionResult GetAll(int page = 1, int pageSize = 5)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            var query = _context.Users.AsQueryable();
 
-            var users = _context.Users
+            var total = query.Count();
+
+            var users = query
+                .OrderBy(u => u.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(u => new UserDTO
                 {
                     Id = u.Id,
                     Username = u.Username,
                     FullName = u.FullName,
                     Role = u.Role,
+                    Email = u.Email,
+                    Phone = u.Phone,
                     IsActive = u.IsActive,
                     CreatedAt = u.CreatedAt
                 })
                 .ToList();
 
-            return Ok(users);
+            return Ok(new
+            {
+                total,
+                page,
+                pageSize,
+                data = users
+            });
         }
 
         // =========================
@@ -42,8 +55,8 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id, int userId)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            //if (!IsAdmin(userId))
+            //    return Unauthorized("Only admin can access");
 
             var user = _context.Users
                 .Where(u => u.Id == id)
@@ -71,8 +84,8 @@ namespace WebAPI.Controllers
         [HttpPost]
         public IActionResult Create(int userId, CreateUserDTO dto)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            //if (!IsAdmin(userId))
+            //    return Unauthorized("Only admin can access");
 
             if (_context.Users.Any(u => u.Username == dto.Username))
                 return BadRequest("Username already exists");
@@ -101,8 +114,8 @@ namespace WebAPI.Controllers
         [HttpGet("search")]
         public IActionResult Search(string keyword, int userId)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            //if (!IsAdmin(userId))
+            //    return Unauthorized("Only admin can access");
 
             var users = _context.Users
                 .Where(u => u.Username.Contains(keyword) || u.FullName.Contains(keyword))
@@ -128,8 +141,8 @@ namespace WebAPI.Controllers
         [HttpPut("{id}/disable")]
         public IActionResult Disable(int id, int userId)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            //if (!IsAdmin(userId))
+            //    return Unauthorized("Only admin can access");
 
             var user = _context.Users.Find(id);
             if (user == null) return NotFound();
@@ -147,8 +160,8 @@ namespace WebAPI.Controllers
         [HttpPut("{id}/enable")]
         public IActionResult Enable(int id, int userId)
         {
-            if (!IsAdmin(userId))
-                return Unauthorized("Only admin can access");
+            //if (!IsAdmin(userId))
+            //    return Unauthorized("Only admin can access");
 
             var user = _context.Users.Find(id);
             if (user == null) return NotFound();
@@ -164,7 +177,6 @@ namespace WebAPI.Controllers
             var user = _context.Users.Find(userId);
             return user != null && user.Role == 1;
         }
-        //7: LOGIN
         [HttpPost("login")]
         public IActionResult Login(LoginDTO dto)
         {
@@ -172,13 +184,16 @@ namespace WebAPI.Controllers
                 .FirstOrDefault(u => u.Username == dto.Username && u.Password == dto.Password);
 
             if (user == null)
-                return Unauthorized("Invalid username or password");
+                return Unauthorized("Sai tài khoản hoặc mật khẩu");
+
+            if (!user.IsActive)
+                return Unauthorized("Tài khoản đã bị khóa");
 
             return Ok(new
             {
                 user.Id,
                 user.Username,
-                user.Role, 
+                user.Role,
                 user.IsActive
             });
         }

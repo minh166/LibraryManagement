@@ -1,0 +1,58 @@
+﻿@model List<ClientWeb.Models.FineViewModel>
+
+@{
+    ViewData["Title"] = "My Fines";
+}
+
+<div class="container mt-4">
+
+    <h2>💰 Khoản phạt của tôi</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Sách</th>
+                <th>Số tiền</th>
+                <th>Trạng thái</th>
+                <th>Ngày thanh toán</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.BookTitle</td>
+
+                    <td class="text-danger">
+                        @item.Amount.ToString("N0") VNĐ
+                    </td>
+
+                    <td>
+                        @if (item.IsPaid)
+                        {
+                            <span class="badge bg-success">Đã trả</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Chưa trả</span>
+                        }
+                </td>
+
+                <td>
+                    @(item.PaidDate.HasValue
+                                        ? item.PaidDate.Value.ToString("dd/MM/yyyy")
+                                        : "-")
+                </td>
+            </tr>
+                        }
+        </tbody>
+    </table>
+</div>
