@@ -26,8 +26,7 @@ public class AuthController : Controller
 
         if (!response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync();
-            ViewBag.Error = error; // hiển thị đúng message từ API
+            ViewBag.Error = "Sai tên đăng nhập hoặc mật khẩu";
             return View();
         }
 
@@ -38,21 +37,9 @@ public class AuthController : Controller
         int role = user.GetProperty("role").GetInt32();
         string username = user.GetProperty("username").GetString() ?? "";
 
-        // 🔥 QUAN TRỌNG: lấy IsActive
-        bool isActive = user.GetProperty("isActive").GetBoolean();
-
-        // 🔥 CHẶN NGAY TẠI ĐÂY
-        if (!isActive)
-        {
-            ViewBag.Error = "Tài khoản đã bị khóa";
-            return View();
-        }
-
-        // lưu session
         HttpContext.Session.SetInt32("UserId", userId);
         HttpContext.Session.SetInt32("Role", role);
         HttpContext.Session.SetString("Username", username);
-        HttpContext.Session.SetInt32("IsActive", isActive ? 1 : 0);
 
         return RedirectToAction("Index", "Home");
     }
